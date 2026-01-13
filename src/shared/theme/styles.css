@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #4cc9f0;
+  --surface-light: #ffffff;
+  --surface-dark: #1a1a1a;
+}
+
+.dark {
+  --surface-light: #0f0f0f;
+  --surface-dark: #0f0f0f;
+}
+
+.bg-surface-light {
+  background-color: var(--surface-light);
+}
+
+.bg-surface-dark {
+  background-color: var(--surface-dark);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.border-accent {
+  border-color: var(--accent);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.dark body,
+.dark .dark\:bg-space {
+  background-image: url("/space-bg.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #222;
+}

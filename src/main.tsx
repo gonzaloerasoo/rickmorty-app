@@ -1,17 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
+import "./styles.css";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-      <div className="p-8 rounded-xl bg-gray-900 shadow-2xl border border-gray-700">
-        <h1 className="text-4xl font-bold text-blue-400 mb-6 text-center">
-          Tailwind está funcionando ✅
-        </h1>
-        <App />
-      </div>
-    </div>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
