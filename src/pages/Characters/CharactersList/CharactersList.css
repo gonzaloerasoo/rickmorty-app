@@ -1,0 +1,320 @@
+.characters-list {
+  display: block;
+  min-height: 83.8vh;
+  overflow-y: auto;
+  padding: 40px 20px;
+  background: url("https://www.transparenttextures.com/patterns/stardust.png")
+      repeat,
+    radial-gradient(circle at top, #0d0d0d 0%, #000000 100%);
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  color: #fff;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-header h2 {
+  font-size: 2.8rem;
+  color: #00e5ff;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.section-header p {
+  font-size: 1.2rem;
+  color: #ccc;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.filter-toggle {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.filter-toggle button {
+  background-color: #00e5ff;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-toggle button .material-icons {
+  font-size: 1.2rem;
+}
+
+.filter-toggle button:hover {
+  background-color: #00bcd4;
+}
+
+.filter-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background-color: #121212;
+  box-shadow: -4px 0 12px rgba(0, 229, 255, 0.2);
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.filter-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-panel .panel-header h3 {
+  color: #00e5ff;
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.filter-panel .panel-header button {
+  background: none;
+  border: none;
+  color: #00e5ff;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-panel .panel-header button .material-icons {
+  font-size: 1.2rem;
+}
+
+.filter-panel .panel-header button:hover {
+  color: #00bcd4;
+}
+
+.filter-panel .panel-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.name-field,
+.status-field,
+.species-field {
+  position: relative;
+}
+
+.static-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00e5ff;
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.name-field input,
+.status-field input,
+.species-field input {
+  position: relative;
+  z-index: 3;
+  color: white;
+  caret-color: white;
+  width: 100%;
+  padding: 12px;
+  background: #121212;
+  border: 1px solid #00e5ff;
+  border-radius: 6px;
+}
+
+.alphabet-index span,
+.species-index span {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #00e5ff;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.index-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.index-buttons button {
+  background-color: transparent;
+  border: 2px solid #00e5ff;
+  color: #00e5ff;
+  padding: 6px 14px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.index-buttons button.active {
+  background-color: #00e5ff;
+  color: #000;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+.index-buttons button:hover:not(.active) {
+  background-color: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+}
+
+.clear-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: transparent;
+  border: none;
+  color: #00e5ff;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.clear-button .material-icons {
+  font-size: 1.2rem;
+}
+
+.clear-button:hover {
+  color: #00bcd4;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.character-card {
+  background-color: #121212;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.character-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 30px rgba(0, 255, 255, 0.2);
+}
+
+.character-card .card-image {
+  width: 100%;
+  height: 400px;
+}
+
+.character-card .card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.character-card .card-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.character-card .name {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #00e5ff;
+  margin-bottom: 8px;
+}
+
+.character-card .meta {
+  font-size: 1rem;
+  color: #ccc;
+  margin-bottom: 6px;
+}
+
+.character-card .origin {
+  font-size: 0.95rem;
+  color: #00bcd4;
+  margin-bottom: 4px;
+}
+
+.character-card .year {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 50px;
+}
+
+.pagination-controls button {
+  background-color: transparent;
+  border: 2px solid #00e5ff;
+  color: #00e5ff;
+  padding: 8px 14px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 50px;
+  min-width: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination-controls button.active {
+  background-color: #00e5ff;
+  color: #000;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+.pagination-controls button:disabled {
+  border-color: #444;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:hover:not(:disabled):not(.active) {
+  background-color: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+}

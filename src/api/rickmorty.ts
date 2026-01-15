@@ -1,24 +1,28 @@
-const BASE = "https://rickandmortyapi.com/api";
+import type { Character, Episode } from "../types/models";
 
-export async function getCharacters(params: {
-  page?: number;
-  name?: string;
-  status?: string;
-  species?: string;
-}) {
-  const search = new URLSearchParams();
-  if (params.page) search.set("page", String(params.page));
-  if (params.name) search.set("name", params.name);
-  if (params.status) search.set("status", params.status);
-  if (params.species) search.set("species", params.species);
+export async function getAllCharacters(): Promise<Character[]> {
+  const baseUrl = "https://rickandmortyapi.com/api/character";
+  const firstPage = await fetch(baseUrl).then((res) => res.json());
+  const totalPages = firstPage.info.pages;
 
-  const res = await fetch(`${BASE}/character?${search.toString()}`);
-  if (!res.ok) throw new Error("Error al cargar personajes");
-  return res.json();
+  const requests = Array.from({ length: totalPages }, (_, i: number) =>
+    fetch(`${baseUrl}?page=${i + 1}`).then((res) => res.json())
+  );
+
+  const pages = await Promise.all(requests);
+  return pages.flatMap((p) => p.results);
 }
 
-export async function getCharacterById(id: string) {
-  const res = await fetch(`${BASE}/character/${id}`);
-  if (!res.ok) throw new Error("Error al cargar personaje");
-  return res.json();
+export async function getCharacterById(id: string): Promise<Character> {
+  const res = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
+  return await res.json();
+}
+
+export async function getEpisodesFromCharacter(
+  character: Character
+): Promise<Episode[]> {
+  const urls = character.episode;
+  const responses = await Promise.all(urls.map((url: string) => fetch(url)));
+  const episodes = await Promise.all(responses.map((res) => res.json()));
+  return episodes;
 }
