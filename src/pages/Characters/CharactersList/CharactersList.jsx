@@ -30,64 +30,55 @@ export default function CharactersList({ charactersService }) {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [scrollOnNext, setScrollOnNext] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const pageParam = params.get("page");
-    if (pageParam) {
-      setCurrentPage(+pageParam || 1);
-    }
-  }, [location.search]);
 
   useEffect(() => {
     setIsLoading(true);
     charactersService.getAllCharacters().then((data) => {
       setCharacters(data);
-      setFiltered(data);
-      const species = [...new Set(data.map((c) => c.species))].sort();
-      setAvailableSpecies(species);
+      setAvailableSpecies([...new Set(data.map((c) => c.species))].sort());
+
+      const params = new URLSearchParams(location.search);
+      const pageParam = params.get("page");
+      const initialPage = pageParam ? +pageParam : 1;
+
+      setCurrentPage(initialPage);
+
+      const filteredInitial = applyFiltersInternal(
+        data,
+        nameFilter,
+        statusFilter,
+        speciesFilter,
+        selectedLetter,
+        selectedSpecies
+      );
+
+      setFiltered(filteredInitial);
+      updatePagination(filteredInitial, initialPage);
       setIsLoading(false);
 
-      const fragment = location.hash?.replace("#", "");
-      if (fragment) {
-        setTimeout(() => {
-          const el = document.getElementById(fragment);
-          if (el) {
-            el.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
-        }, 0);
+      if (scrollOnNext) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setScrollOnNext(false);
       }
     });
-  }, [charactersService, location.hash]);
+  }, [charactersService, location.search]);
 
   useEffect(() => {
-    let result = [...characters];
-
-    const name = nameFilter.toLowerCase();
-    const status = statusFilter.toLowerCase();
-    const species = speciesFilter.toLowerCase();
-
-    result = result.filter(
-      (c) =>
-        c.name.toLowerCase().includes(name) &&
-        c.status.toLowerCase().includes(status) &&
-        c.species.toLowerCase().includes(species)
+    const result = applyFiltersInternal(
+      characters,
+      nameFilter,
+      statusFilter,
+      speciesFilter,
+      selectedLetter,
+      selectedSpecies
     );
-
-    if (selectedLetter) {
-      result = result.filter(
-        (c) => c.name.charAt(0).toUpperCase() === selectedLetter
-      );
-    }
-
-    if (selectedSpecies) {
-      result = result.filter((c) => c.species === selectedSpecies);
-    }
-
     setFiltered(result);
     setCurrentPage(1);
+    updatePagination(result, 1);
   }, [
     characters,
     nameFilter,
@@ -97,19 +88,51 @@ export default function CharactersList({ charactersService }) {
     selectedSpecies,
   ]);
 
-  useEffect(() => {
-    const totalItems = filtered.length;
+  const applyFiltersInternal = (
+    base,
+    nameValue,
+    statusValue,
+    speciesValue,
+    letter,
+    speciesSelected
+  ) => {
+    let result = [...base];
+
+    const name = (nameValue || "").toLowerCase();
+    const status = (statusValue || "").toLowerCase();
+    const species = (speciesValue || "").toLowerCase();
+
+    result = result.filter(
+      (c) =>
+        c.name.toLowerCase().includes(name) &&
+        c.status.toLowerCase().includes(status) &&
+        c.species.toLowerCase().includes(species)
+    );
+
+    if (letter) {
+      result = result.filter((c) => c.name.charAt(0).toUpperCase() === letter);
+    }
+
+    if (speciesSelected) {
+      result = result.filter((c) => c.species === speciesSelected);
+    }
+
+    return result;
+  };
+
+  const updatePagination = (list, page) => {
+    const totalItems = list.length;
     const pages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
     setTotalPages(pages);
 
-    const start = (currentPage - 1) * itemsPerPage;
+    const start = (page - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    setPaginated(filtered.slice(start, end));
+    setPaginated(list.slice(start, end));
 
     const maxVisible = 5;
     const visible = [];
 
-    let startPage = Math.max(2, currentPage - Math.floor(maxVisible / 2));
+    let startPage = Math.max(2, page - Math.floor(maxVisible / 2));
     let endPage = startPage + maxVisible - 1;
 
     if (endPage >= pages) {
@@ -117,46 +140,57 @@ export default function CharactersList({ charactersService }) {
       startPage = Math.max(2, endPage - maxVisible + 1);
     }
 
-    for (let i = startPage; i <= endPage; i++) {
-      visible.push(i);
-    }
+    for (let i = startPage; i <= endPage; i++) visible.push(i);
 
     setVisiblePageNumbers(visible);
     setShowPrevEllipsis(startPage > 2);
     setShowNextEllipsis(endPage < pages - 1);
-  }, [filtered, currentPage]);
+  };
 
   const goToPage = (page) => {
+    setScrollOnNext(false);
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      updatePagination(filtered, page);
       const params = new URLSearchParams(location.search);
       params.set("page", String(page));
       navigate({ pathname: "/characters", search: params.toString() });
     }
   };
 
-  const nextPage = () => goToPage(currentPage + 1);
-  const prevPage = () => goToPage(currentPage - 1);
-
-  const handlePrevEllipsis = () => {
-    if (visiblePageNumbers.length > 0) {
-      goToPage(visiblePageNumbers[0] - 1);
-    }
+  const nextPage = () => {
+    setScrollOnNext(true);
+    goToPage(currentPage + 1);
   };
 
-  const handleNextEllipsis = () => {
-    if (visiblePageNumbers.length > 0) {
-      goToPage(visiblePageNumbers[visiblePageNumbers.length - 1] + 1);
-    }
+  const prevPage = () => {
+    setScrollOnNext(false);
+    goToPage(currentPage - 1);
+  };
+
+  const handlePrevEllipsis = () => goToPage(visiblePageNumbers[0] - 1);
+  const handleNextEllipsis = () =>
+    goToPage(visiblePageNumbers[visiblePageNumbers.length - 1] + 1);
+
+  const onNameFocus = () => setShowNameOverlay(false);
+  const onNameBlur = () => {
+    if (!nameFilter) setShowNameOverlay(true);
+  };
+
+  const onStatusFocus = () => setShowStatusOverlay(false);
+  const onStatusBlur = () => {
+    if (!statusFilter) setShowStatusOverlay(true);
+  };
+
+  const onSpeciesFocus = () => setShowSpeciesOverlay(false);
+  const onSpeciesBlur = () => {
+    if (!speciesFilter) setShowSpeciesOverlay(true);
   };
 
   const goToDetail = (id) => {
     const params = new URLSearchParams(location.search);
     params.set("page", String(currentPage));
-    navigate({
-      pathname: `/characters/${id}`,
-      search: params.toString(),
-    });
+    navigate(`/characters/${id}?${params.toString()}`);
   };
 
   return (
@@ -190,25 +224,23 @@ export default function CharactersList({ charactersService }) {
 
               <div className="panel-body">
                 <div className="name-field">
+                  {!showNameOverlay && <label>Nombre</label>}
                   <input
                     value={nameFilter}
                     onChange={(e) => setNameFilter(e.target.value)}
-                    onFocus={() => setShowNameOverlay(false)}
-                    onBlur={() => {
-                      if (!nameFilter) setShowNameOverlay(true);
-                    }}
+                    onFocus={onNameFocus}
+                    onBlur={onNameBlur}
                   />
                   {showNameOverlay && <div className="static-text">Nombre</div>}
                 </div>
 
                 <div className="status-field">
+                  {!showStatusOverlay && <label>Estado</label>}
                   <input
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    onFocus={() => setShowStatusOverlay(false)}
-                    onBlur={() => {
-                      if (!statusFilter) setShowStatusOverlay(true);
-                    }}
+                    onFocus={onStatusFocus}
+                    onBlur={onStatusBlur}
                   />
                   {showStatusOverlay && (
                     <div className="static-text">Estado</div>
@@ -216,13 +248,12 @@ export default function CharactersList({ charactersService }) {
                 </div>
 
                 <div className="species-field">
+                  {!showSpeciesOverlay && <label>Especie</label>}
                   <input
                     value={speciesFilter}
                     onChange={(e) => setSpeciesFilter(e.target.value)}
-                    onFocus={() => setShowSpeciesOverlay(false)}
-                    onBlur={() => {
-                      if (!speciesFilter) setShowSpeciesOverlay(true);
-                    }}
+                    onFocus={onSpeciesFocus}
+                    onBlur={onSpeciesBlur}
                   />
                   {showSpeciesOverlay && (
                     <div className="static-text">Especie</div>
@@ -304,54 +335,49 @@ export default function CharactersList({ charactersService }) {
             ))}
           </div>
 
-          <div className="pagination-controls">
-            {filtered.length > 0 && totalPages > 1 ? (
-              <>
-                <button onClick={prevPage} disabled={currentPage === 1}>
-                  Anterior
-                </button>
+          {filtered.length > 0 && totalPages > 1 ? (
+            <div className="pagination-controls">
+              <button onClick={prevPage} disabled={currentPage === 1}>
+                Anterior
+              </button>
+              <button
+                onClick={() => goToPage(1)}
+                className={currentPage === 1 ? "active" : ""}
+              >
+                1
+              </button>
+              {showPrevEllipsis && (
+                <button onClick={handlePrevEllipsis}>...</button>
+              )}
+              {visiblePageNumbers.map((page) => (
                 <button
-                  onClick={() => goToPage(1)}
-                  className={currentPage === 1 ? "active" : ""}
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={page === currentPage ? "active" : ""}
                 >
-                  1
+                  {page}
                 </button>
-                {showPrevEllipsis && (
-                  <button onClick={handlePrevEllipsis}>...</button>
-                )}
-                {visiblePageNumbers.map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={page === currentPage ? "active" : ""}
-                  >
-                    {page}
-                  </button>
-                ))}
-                {showNextEllipsis && (
-                  <button onClick={handleNextEllipsis}>...</button>
-                )}
-                <button
-                  onClick={() => goToPage(totalPages)}
-                  className={currentPage === totalPages ? "active" : ""}
-                >
-                  {totalPages}
-                </button>
-                <button
-                  onClick={nextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Siguiente
-                </button>
-              </>
-            ) : (
-              <>
-                <button disabled>Anterior</button>
-                <button className="active">1</button>
-                <button disabled>Siguiente</button>
-              </>
-            )}
-          </div>
+              ))}
+              {showNextEllipsis && (
+                <button onClick={handleNextEllipsis}>...</button>
+              )}
+              <button
+                onClick={() => goToPage(totalPages)}
+                className={currentPage === totalPages ? "active" : ""}
+              >
+                {totalPages}
+              </button>
+              <button onClick={nextPage} disabled={currentPage === totalPages}>
+                Siguiente
+              </button>
+            </div>
+          ) : (
+            <div className="pagination-controls">
+              <button disabled>Anterior</button>
+              <button className="active">1</button>
+              <button disabled>Siguiente</button>
+            </div>
+          )}
         </>
       )}
     </div>

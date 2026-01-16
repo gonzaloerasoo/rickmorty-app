@@ -22,27 +22,30 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="hero">
-        <h1>RickPedia</h1>
-      </div>
+      <div className="background" />
+      <div className="home-content">
+        <div className="hero">
+          <h1>RickPedia</h1>
+        </div>
 
-      <div className="card-grid">
-        <div className="feature-card">
-          <div className="card-image">
-            <img
-              src="https://rickandmortyapi.com/api/character/avatar/1.jpeg"
-              alt="Rick"
-            />
-          </div>
-          <h2 className="card-title">Personajes</h2>
-          <div className="card-content">
-            <p>
-              Conoce a Rick y los personajes clave. Descubre sus historias y
-              habilidades.
-            </p>
-          </div>
-          <div className="card-actions">
-            <button onClick={() => navigate("/characters")}>Ver más</button>
+        <div className="card-grid">
+          <div className="feature-card">
+            <div className="card-image">
+              <img
+                src="https://rickandmortyapi.com/api/character/avatar/1.jpeg"
+                alt="Rick"
+              />
+            </div>
+            <h2 className="card-title">Personajes</h2>
+            <div className="card-content centered-text">
+              <p>
+                Conoce a Rick y los personajes clave. Descubre sus historias y
+                habilidades.
+              </p>
+            </div>
+            <div className="card-actions">
+              <button onClick={() => navigate("/characters")}>Ver más</button>
+            </div>
           </div>
         </div>
       </div>

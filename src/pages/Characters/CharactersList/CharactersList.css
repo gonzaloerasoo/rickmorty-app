@@ -126,7 +126,9 @@
   position: relative;
 }
 
-.static-text {
+.name-field .static-text,
+.status-field .static-text,
+.species-field .static-text {
   position: absolute;
   top: 0;
   left: 0;
@@ -146,13 +148,8 @@
 .species-field input {
   position: relative;
   z-index: 3;
-  color: white;
-  caret-color: white;
-  width: 100%;
-  padding: 12px;
-  background: #121212;
-  border: 1px solid #00e5ff;
-  border-radius: 6px;
+  color: white !important;
+  caret-color: white !important;
 }
 
 .alphabet-index span,
@@ -216,6 +213,11 @@
   color: #00bcd4;
 }
 
+.episode-input {
+  color: white;
+  caret-color: white;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -238,45 +240,52 @@
   box-shadow: 0 6px 30px rgba(0, 255, 255, 0.2);
 }
 
-.character-card .card-image {
+.card-image {
   width: 100%;
   height: 400px;
 }
 
-.character-card .card-image img {
+.card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.character-card .card-content {
+.card-content {
   padding: 20px;
   text-align: center;
 }
 
-.character-card .name {
+.card-content .name {
   font-size: 1.6rem;
   font-weight: 600;
   color: #00e5ff;
   margin-bottom: 8px;
 }
 
-.character-card .meta {
+.card-content .meta {
   font-size: 1rem;
   color: #ccc;
   margin-bottom: 6px;
 }
 
-.character-card .origin {
+.card-content .origin {
   font-size: 0.95rem;
   color: #00bcd4;
   margin-bottom: 4px;
 }
 
-.character-card .year {
+.card-content .year {
   font-size: 0.9rem;
   color: #999;
+}
+
+.episode-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
 }
 
 .pagination-controls {
@@ -317,4 +326,11 @@
 .pagination-controls button:hover:not(:disabled):not(.active) {
   background-color: rgba(0, 229, 255, 0.1);
   box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
+}
+
+.pagination-controls span {
+  color: #00e5ff;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 0 6px;
 }

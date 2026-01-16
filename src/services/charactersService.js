@@ -1,9 +1,17 @@
 const API_URL = "https://rickandmortyapi.com/api/character";
 
 async function getAllCharacters() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
-  return data.results;
+  let all = [];
+  let next = API_URL;
+
+  while (next) {
+    const res = await fetch(next);
+    const data = await res.json();
+    all = all.concat(data.results);
+    next = data.info.next;
+  }
+
+  return all;
 }
 
 async function getCharacterById(id) {

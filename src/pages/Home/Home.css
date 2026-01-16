@@ -1,17 +1,33 @@
 .home {
-  display: block;
+  position: relative;
+  width: 100%;
+  height: 93.9vh;
+  overflow: hidden;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 96vh;
   background: url("https://www.transparenttextures.com/patterns/stardust.png")
       repeat,
     radial-gradient(circle at top, #0d0d0d 0%, #000000 100%);
-  color: #fff;
-  min-height: 100vh;
-  padding: 20px;
-  font-family: "Roboto", "Segoe UI", sans-serif;
+  z-index: 0;
+}
+
+.home-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 20vh;
+  padding: 20px;
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  color: #fff;
 }
 
 .spinner-container {
@@ -56,9 +72,11 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
+  justify-content: flex-start;
   text-align: center;
+  max-width: 380px;
+  margin: 0 auto;
+  height: auto;
 }
 
 .feature-card:hover {
@@ -87,10 +105,15 @@
 }
 
 .card-content {
-  flex-grow: 1;
+  flex-grow: 0;
   display: flex;
-  align-items: flex-start;
-  padding-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.centered-text {
+  text-align: center;
 }
 
 .card-content p {
@@ -100,7 +123,8 @@
 }
 
 .card-actions {
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-bottom: 20px;
   display: flex;
   justify-content: center;
 }
