@@ -1,0 +1,58 @@
+.notfound-host {
+  height: 94.4vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Roboto", "Segoe UI", sans-serif;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.notfound-box {
+  background-color: #121212;
+  padding: 50px 60px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.15);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.notfound-box h2 {
+  font-size: 4rem;
+  color: #00e5ff;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.notfound-box p {
+  font-size: 1.3rem;
+  color: #ccc;
+  margin-bottom: 30px;
+}
+
+.notfound-box button {
+  background-color: transparent;
+  border: 2px solid #00e5ff;
+  color: #00e5ff;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 30px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.notfound-box button:hover {
+  background-color: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+.notfound-box button .material-icons {
+  font-size: 1.2rem;
+}

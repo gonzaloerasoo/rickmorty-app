@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "../pages/Home/Home";
 import CharacterDetail from "../pages/Characters/CharacterDetail/CharacterDetail";
 import CharactersList from "../pages/Characters/CharactersList/CharactersList";
+import NotFound from "../pages/NotFound/NotFound";
 import Navbar from "../components/Navbar/Navbar";
 import charactersService from "../services/charactersService";
 import teamService from "../services/teamService";
@@ -25,6 +26,7 @@ export default function AppRouter() {
             />
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
