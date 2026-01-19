@@ -72,6 +72,37 @@
   font-weight: bold;
 }
 
+/* ✅ NUEVO: Lista de episodios */
+.character-detail .info .episodes {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.character-detail .info .episodes strong {
+  color: #00e5ff;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.character-detail .info .episodes ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.character-detail .info .episodes li {
+  background-color: #1a1a1a;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  color: #ccc;
+  border-left: 3px solid #00e5ff;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.1);
+}
+
+/* Botón de volver */
 .character-detail .info .actions {
   margin-top: 30px;
   display: flex;

@@ -2,16 +2,15 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./CharacterDetail.css";
 
-export default function CharacterDetail({ charactersService, teamService }) {
+export default function CharacterDetail({ charactersService }) {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
   const [character, setCharacter] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInTeam, setIsInTeam] = useState(false);
   const [pageToReturn, setPageToReturn] = useState(1);
-  const [confirmationMessage, setConfirmationMessage] = useState(null);
+  const [episodes, setEpisodes] = useState([]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -25,7 +24,7 @@ export default function CharacterDetail({ charactersService, teamService }) {
       .getCharacterById(id)
       .then((data) => {
         setCharacter(data);
-        checkIfInTeam(data);
+        fetchEpisodes(data.episode);
         setIsLoading(false);
       })
       .catch(() => {
@@ -33,41 +32,16 @@ export default function CharacterDetail({ charactersService, teamService }) {
       });
   }, [id, location.search, charactersService]);
 
-  const checkIfInTeam = (char) => {
-    teamService.getTeam().then((team) => {
-      setIsInTeam(team.some((member) => member.id === char.id));
-    });
-  };
+  const fetchEpisodes = (episodeUrls) => {
+    if (!episodeUrls || episodeUrls.length === 0) return;
 
-  const addToTeam = () => {
-    if (!character) return;
-
-    const payload = {
-      id: character.id,
-      name: character.name,
-      species: character.species,
-      status: character.status,
-      origin: character.origin?.name || "Desconocido",
-      location: character.location?.name || "Desconocido",
-      gender: character.gender || "Desconocido",
-      type: character.type || "Desconocido",
-      image: character.image,
-      created: character.created || new Date().toISOString(),
-    };
-
-    teamService.addToTeam(payload).then(() => {
-      setIsInTeam(true);
-      setConfirmationMessage("Personaje añadido al equipo");
-    });
-  };
-
-  const removeFromTeam = () => {
-    if (!character) return;
-
-    teamService.removeFromTeam(character.id).then(() => {
-      setIsInTeam(false);
-      setConfirmationMessage("Personaje eliminado del equipo");
-    });
+    Promise.all(episodeUrls.map((url) => fetch(url).then((res) => res.json())))
+      .then((data) => {
+        setEpisodes(data);
+      })
+      .catch(() => {
+        setEpisodes([]);
+      });
   };
 
   const goBack = () => {
@@ -139,27 +113,22 @@ export default function CharacterDetail({ charactersService, teamService }) {
             })}
           </p>
 
+          <div className="episodes">
+            <strong>Episodios en los que aparece:</strong>
+            <ul>
+              {episodes.map((ep) => (
+                <li key={ep.id}>
+                  {ep.episode} – {ep.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="actions">
-            {!isInTeam && (
-              <button onClick={addToTeam} aria-label="Añadir al equipo">
-                <span className="material-icons">group_add</span>
-              </button>
-            )}
-
-            {isInTeam && (
-              <button onClick={removeFromTeam} aria-label="Quitar del equipo">
-                <span className="material-icons">group_off</span>
-              </button>
-            )}
-
             <button onClick={goBack} aria-label="Volver atrás">
               <span className="material-icons">arrow_back</span>
             </button>
           </div>
-
-          {confirmationMessage && (
-            <div className="confirmation">{confirmationMessage}</div>
-          )}
         </div>
       </div>
     </div>
