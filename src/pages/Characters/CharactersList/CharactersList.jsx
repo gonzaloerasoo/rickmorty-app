@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./CharactersList.css";
 
@@ -30,77 +30,45 @@ export default function CharactersList({ charactersService }) {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [scrollOnNext, setScrollOnNext] = useState(false);
-
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
+
     charactersService.getAllCharacters().then((data) => {
       setCharacters(data);
+      setFiltered(data);
       setAvailableSpecies([...new Set(data.map((c) => c.species))].sort());
 
       const params = new URLSearchParams(location.search);
       const pageParam = params.get("page");
-      const initialPage = pageParam ? +pageParam : 1;
+      const page = pageParam ? +pageParam : 1;
+      setCurrentPage(page);
 
-      setCurrentPage(initialPage);
-
-      const filteredInitial = applyFiltersInternal(
-        data,
-        nameFilter,
-        statusFilter,
-        speciesFilter,
-        selectedLetter,
-        selectedSpecies
-      );
-
-      setFiltered(filteredInitial);
-      updatePagination(filteredInitial, initialPage);
+      updatePagination(data, page);
       setIsLoading(false);
 
-      if (scrollOnNext) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        setScrollOnNext(false);
+      const fragment = window.location.hash.replace("#", "");
+      if (fragment) {
+        setTimeout(() => {
+          const el = document.getElementById(fragment);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 0);
       }
     });
-  }, [charactersService, location.search]);
+  }, []);
 
   useEffect(() => {
-    const result = applyFiltersInternal(
-      characters,
-      nameFilter,
-      statusFilter,
-      speciesFilter,
-      selectedLetter,
-      selectedSpecies
-    );
-    setFiltered(result);
-    setCurrentPage(1);
-    updatePagination(result, 1);
-  }, [
-    characters,
-    nameFilter,
-    statusFilter,
-    speciesFilter,
-    selectedLetter,
-    selectedSpecies,
-  ]);
+    applyFilters();
+  }, [nameFilter, statusFilter, speciesFilter, selectedLetter, selectedSpecies]);
 
-  const applyFiltersInternal = (
-    base,
-    nameValue,
-    statusValue,
-    speciesValue,
-    letter,
-    speciesSelected
-  ) => {
-    let result = [...base];
+  const applyFilters = () => {
+    let result = [...characters];
 
-    const name = (nameValue || "").toLowerCase();
-    const status = (statusValue || "").toLowerCase();
-    const species = (speciesValue || "").toLowerCase();
+    const name = nameFilter.toLowerCase();
+    const status = statusFilter.toLowerCase();
+    const species = speciesFilter.toLowerCase();
 
     result = result.filter(
       (c) =>
@@ -109,15 +77,35 @@ export default function CharactersList({ charactersService }) {
         c.species.toLowerCase().includes(species)
     );
 
-    if (letter) {
-      result = result.filter((c) => c.name.charAt(0).toUpperCase() === letter);
+    if (selectedLetter) {
+      result = result.filter(
+        (c) => c.name.charAt(0).toUpperCase() === selectedLetter
+      );
     }
 
-    if (speciesSelected) {
-      result = result.filter((c) => c.species === speciesSelected);
+    if (selectedSpecies) {
+      result = result.filter((c) => c.species === selectedSpecies);
     }
 
-    return result;
+    setFiltered(result);
+    setCurrentPage(1);
+    updatePagination(result, 1);
+  };
+
+  const selectLetter = (letter) => {
+    setSelectedLetter(letter);
+  };
+
+  const clearLetter = () => {
+    setSelectedLetter(null);
+  };
+
+  const selectSpecies = (specie) => {
+    setSelectedSpecies(specie);
+  };
+
+  const clearSpecies = () => {
+    setSelectedSpecies(null);
   };
 
   const updatePagination = (list, page) => {
@@ -148,25 +136,14 @@ export default function CharactersList({ charactersService }) {
   };
 
   const goToPage = (page) => {
-    setScrollOnNext(false);
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
       updatePagination(filtered, page);
-      const params = new URLSearchParams(location.search);
-      params.set("page", String(page));
-      navigate({ pathname: "/characters", search: params.toString() });
     }
   };
 
-  const nextPage = () => {
-    setScrollOnNext(true);
-    goToPage(currentPage + 1);
-  };
-
-  const prevPage = () => {
-    setScrollOnNext(false);
-    goToPage(currentPage - 1);
-  };
+  const nextPage = () => goToPage(currentPage + 1);
+  const prevPage = () => goToPage(currentPage - 1);
 
   const handlePrevEllipsis = () => goToPage(visiblePageNumbers[0] - 1);
   const handleNextEllipsis = () =>
@@ -188,9 +165,7 @@ export default function CharactersList({ charactersService }) {
   };
 
   const goToDetail = (id) => {
-    const params = new URLSearchParams(location.search);
-    params.set("page", String(currentPage));
-    navigate(`/characters/${id}?${params.toString()}`);
+    navigate(`/characters/${id}?page=${currentPage}`);
   };
 
   return (
@@ -242,9 +217,7 @@ export default function CharactersList({ charactersService }) {
                     onFocus={onStatusFocus}
                     onBlur={onStatusBlur}
                   />
-                  {showStatusOverlay && (
-                    <div className="static-text">Estado</div>
-                  )}
+                  {showStatusOverlay && <div className="static-text">Estado</div>}
                 </div>
 
                 <div className="species-field">
@@ -266,7 +239,7 @@ export default function CharactersList({ charactersService }) {
                     {alphabet.map((letter) => (
                       <button
                         key={letter}
-                        onClick={() => setSelectedLetter(letter)}
+                        onClick={() => selectLetter(letter)}
                         className={selectedLetter === letter ? "active" : ""}
                       >
                         {letter}
@@ -274,12 +247,9 @@ export default function CharactersList({ charactersService }) {
                     ))}
                   </div>
                   {selectedLetter && (
-                    <button
-                      className="clear-button"
-                      onClick={() => setSelectedLetter(null)}
-                    >
-                      <span className="material-icons">close</span> Quitar
-                      filtro de letra
+                    <button className="clear-button" onClick={clearLetter}>
+                      <span className="material-icons">close</span> Quitar filtro
+                      de letra
                     </button>
                   )}
                 </div>
@@ -290,7 +260,7 @@ export default function CharactersList({ charactersService }) {
                     {availableSpecies.map((specie) => (
                       <button
                         key={specie}
-                        onClick={() => setSelectedSpecies(specie)}
+                        onClick={() => selectSpecies(specie)}
                         className={selectedSpecies === specie ? "active" : ""}
                       >
                         {specie}
@@ -298,12 +268,9 @@ export default function CharactersList({ charactersService }) {
                     ))}
                   </div>
                   {selectedSpecies && (
-                    <button
-                      className="clear-button"
-                      onClick={() => setSelectedSpecies(null)}
-                    >
-                      <span className="material-icons">close</span> Quitar
-                      filtro de especie
+                    <button className="clear-button" onClick={clearSpecies}>
+                      <span className="material-icons">close</span> Quitar filtro
+                      de especie
                     </button>
                   )}
                 </div>
@@ -367,7 +334,10 @@ export default function CharactersList({ charactersService }) {
               >
                 {totalPages}
               </button>
-              <button onClick={nextPage} disabled={currentPage === totalPages}>
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+              >
                 Siguiente
               </button>
             </div>
